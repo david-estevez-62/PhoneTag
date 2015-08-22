@@ -22,19 +22,17 @@ var userSchema = mongoose.Schema({
   email: {
     type: String
   },
-  location: [
-
-    {
-      latitude: String,
-      longitude: String,
-      datetime: String
-    }
-
-  ],
+  location:
+      {
+        type: { type: String, default: "Point" },
+        coordinates: [Number, Number],
+        datetime: Date
+      },
   points: {type:Number, default:10000},
   imageUrl: {type:String, default:'/img/gravatar.jpg'}
 });
 
+userSchema.index({ "location.coordinates": "2dsphere"});
 
 
 /**

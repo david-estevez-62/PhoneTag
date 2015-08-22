@@ -1,16 +1,11 @@
 
 
 
+
+
+
+
 $(function(){
-
-
-$("#scanbtn").on("click", function(){
-  $.get("/scan", function(data){
-      console.log(data);
-  })
-})
-
-
 
 
 
@@ -46,9 +41,22 @@ function initialize() {
         mapOptions); 
   }
 
+
+  // addMarker function 
+  function addMarker(location) {
+    // console.log(location);
+    // Create new marker at event click location and inject into map
+    var marker = new google.maps.Marker({
+      position: location,
+      map: map
+    });
+
+  }
+
   getLocation();
 
-  window.setInterval(getLocation, 10000);
+  // window.setInterval(getLocation, 30000);
+
 
   
 

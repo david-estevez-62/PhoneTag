@@ -8,10 +8,14 @@ var session = require('express-session');
 var indexController = require('./controllers/index.js');
 var loginController = require('./controllers/login.js');
 var adminController = require('./controllers/admin');
-var userController = require('./controllers/users')
+var userController = require('./controllers/users');
+
+var User = require('./models/users.js');
+
 
 var passport = require('passport');
 var passportConfig = require('./config/passport');
+
 
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/warrior');
 var db = mongoose.connection;
@@ -31,6 +35,7 @@ app.use(require('express-session')({
     resave: false,
     saveUninitialized: false
 }));
+
 
 app.use(cookieParser());
 app.use(flash());

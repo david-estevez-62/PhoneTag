@@ -4,118 +4,71 @@ var User = require('../models/users.js');
 var userController = {
 
 
-
-  locate: function (req, res) {
-      var data = req.body;
-      var date = new Date();
-      var time = date.toISOString();
-      var username = req.user.username;
+      locate: function (req, res) {
+          var data = req.body;
+          var date = new Date();
+          var username = req.user.username;
 
 
-      User.findOne({username:username}, function(err, user) {
-        if (err) return handleErr(err);
+          User.findOne({username:username}, function(err, user) {
+            if (err) return handleErr(err);
 
-        find = {
-          latitude: data.latitude,
-          longitude: data.longitude,
-          datetime: time
-        };
+            find = {
+              coordinates: [data.longitude, data.latitude],
+              datetime: date
+            };
 
-        user.location.push(find);
-        user.save();
+            user.location = find;
+            user.save();
 
-      });
+          });
 
   },
 
 
   scan: function (req, res) {
-    var userslocation = req.user.location.pop();
-    var userslat = userslocation.latitude;
-    var userslng = userslocation.longitude;
-
-    // console.log(userslocation);
 
     var date = new Date();
-    var time = date.toISOString();
-    var subtime = time.substring(0, 10)
+    var minusmin = date.setMinutes(date.getMinutes() - 20);
+    
 
-    var sub1 = Number(time.substring(11, 13));
-    var sub2 = Number(time.substring(14, 16));
-    var sub3 = Number(time.substring(17, 19));
+    User.find({ "location.datetime": {$gte: minusmin}}, function (err, user) {
 
-    var seconds1 = (sub1 * 3600) + (sub2 * 60) + sub3;
-
-
-
-    User.find({}, function (err, user) {
       if (err) return handleErr(err);
 
 
       for (var i = 0; i < user.length; i++) {
+
         //return users other than current user
         if(req.user.username !== user[i].username){
-          var closelocal = user[i].location.pop();
 
-          var timestamp = closelocal.datetime;
-          var substr = timestamp.substring(0, 10);
+          // console.log(user[i].username);
 
+          
+          // User.find({ username: user[i].username, $nearSphere: { $geometry: { type: "Point", coordinates: [ req.user.location.coordinates[0], req.user.location.coordinates[1] ]}, "$maxDistance": 300} }, function(err, data) {
+          User.find({ username: user[i].username, "location.coordinates": { $nearSphere: { $geometry: { type: "Point", coordinates: [ req.user.location.coordinates[0], req.user.location.coordinates[1] ]}, $maxDistance: 300 } } }, function(err, data){
+              if (err) return handleErr(err);
 
-
-                
-          if(substr === subtime) {
-            var seg1 = Number(timestamp.substring(11, 13));
-            var seg2 = Number(timestamp.substring(14, 16));
-            var seg3 = Number(timestamp.substring(17, 19));
-            
-            var seconds2 = (seg1 * 3600) + (seg2 * 60) + seg3;
+              console.log(data);
 
 
-
-
-            // Get time within 20 min of scan(Or logging in)
-            if((seconds1 - seconds2) < 1200) {
-
-              var closelat = closelocal.latitude;
-              var closelng = closelocal.longitude;
-
-
-              console.log(userslocation);
-              console.log(user[i].username + ":");
-              console.log(closelat);
-              console.log(closelng);
-
-
-              // 1000ft square ==> latitude: +- 0.0027448  ||  longitude: +- 0.00450937 
-              if((closelat <= (userslat + 0.0027448)) && (closelat >= (userslat - 0.0027448)) && (closelng <= (userslng + 0.00450937)) && (closelng >= (userslng - 0.00450937))) {     
-
-
-                console.log(user[i].username + ":");
-                console.log(closelat);
-                console.log(closelng);
-
-
-              }
-
-
-
-            }
-
-
-            
-          }
+          });
 
 
         }
 
-
-      };
+          
+      }
+      
+      res.send(user);
 
     });
 
   }
-      
+}
 
-};
+
+
+
 
 module.exports = userController;
