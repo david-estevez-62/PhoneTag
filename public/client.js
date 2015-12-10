@@ -1,4 +1,10 @@
 
+
+
+
+
+
+
 $(function(){
 
 
@@ -34,6 +40,35 @@ function initialize() {
     var map = new google.maps.Map(document.getElementById('map'),
         mapOptions); 
   }
+
+
+
+  //////////////
+  // Scan btn //
+  //////////////
+  $("#scanbtn").on("click", function(){
+
+
+      $.get("/scan", function(data){
+
+        // console.log(data);
+
+          for (var i = 0; i < data.length; i++) {
+            console.log('data: ' + [i]);
+            console.log(data[i].location.coordinates)
+
+            var coords = (new google.maps.LatLng(Number(data[i].location.coordinates[0]), Number(data[i].location.coordinates[1])))
+
+            console.log(coords);
+            addMarker(coords);
+          }; 
+
+      });
+
+
+  });
+
+
 
 
   // addMarker function 

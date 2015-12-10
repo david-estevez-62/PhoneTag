@@ -30,7 +30,7 @@ var userController = {
 
     var date = new Date();
     var minusmin = date.setMinutes(date.getMinutes() - 20);
-    
+
 
     User.find({ "location.datetime": {$gte: minusmin}}, function (err, user) {
 
@@ -42,14 +42,14 @@ var userController = {
         //return users other than current user
         if(req.user.username !== user[i].username){
 
-          // console.log(user[i].username);
 
           
           // User.find({ username: user[i].username, $nearSphere: { $geometry: { type: "Point", coordinates: [ req.user.location.coordinates[0], req.user.location.coordinates[1] ]}, "$maxDistance": 300} }, function(err, data) {
-          User.find({ username: user[i].username, "location.coordinates": { $nearSphere: { $geometry: { type: "Point", coordinates: [ req.user.location.coordinates[0], req.user.location.coordinates[1] ]}, $maxDistance: 300 } } }, function(err, data){
+          User.find({ username: user[i].username, "location.coordinates": { $nearSphere: { $geometry: { type: "Point", coordinates: [ req.user.location.coordinates[0], req.user.location.coordinates[1] ]}, $maxDistance: 8 } } }, function(err, data){
               if (err) return handleErr(err);
 
               console.log(data);
+
 
 
           });
@@ -59,7 +59,7 @@ var userController = {
 
           
       }
-      
+
       res.send(user);
 
     });
